@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Камуфляж: какой цвет спасёт?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f6f1e7; --ink:#2a2118; --muted:#7a6c5a; --card:#ffffff; --line:#e4d9c6;
+    --accent:#cc66ff;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:"Oswald", sans-serif;
+    min-height:100vh; padding:20px 16px 40px;
+    font-weight: 400;
+  }
+  h1,h2,h3,.tab,.vbtn,.card span,.verdict,.vname,.meter-l,.fact b{font-weight: 700; font-family:"Oswald", sans-serif;}
+  .wrap{max-width:1040px;margin:0 auto}
+  h1{font-size:clamp(22px,4vw,34px);margin:0 0 4px;letter-spacing:.02em; text-transform:uppercase;}
+  .sub{color:var(--muted);margin:0 0 16px;font-size:16px; font-family:"Oswald", sans-serif; font-weight: 400;}
+
+  .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .tab{
+    border:2px solid var(--line);background:var(--card);color:var(--ink);
+    padding:8px 16px;border-radius:999px;font:inherit;font-weight:700;cursor:pointer;
+    transition:.2s; text-transform:uppercase; letter-spacing: .05em;
+  }
+  .tab:hover{border-color:#bfae92}
+  .tab[aria-selected="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+
+  .stage-wrap{position:relative;border-radius:18px;overflow:hidden;box-shadow:0 10px 30px rgba(60,40,10,.18);background:#ddd}
+  .stage{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden}
+  .stage svg,.stage img{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .stage .hole{position:absolute;transition:background-color .6s ease}
+  .stage svg .tint{transition:fill .6s ease}
+
+  .overlay-q{
+    position:absolute;left:0;right:0;bottom:0;padding:14px 18px;
+    background:linear-gradient(to top,rgba(255,255,255,.88),rgba(255,255,255,0));
+    display:flex;align-items:center;gap:14px;pointer-events:none;
+  }
+  .overlay-q .q{font-size:clamp(16px,2.6vw,24px);font-weight:700;color:#3b2d1c;text-shadow:0 1px 0 rgba(255,255,255,.7); letter-spacing:.02em;}
+  .overlay-q .dot{width:clamp(28px,5vw,46px);height:clamp(28px,5vw,46px);border-radius:50%;flex:none;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.3);transition:background-color .5s}
+
+  .variants{display:none;gap:6px;margin:12px 0 0}
+  .variants.on{display:flex;flex-wrap:wrap;align-items:center}
+  .variants .lab{color:var(--muted);font-size:15px;margin-right:4px; font-weight: 700; text-transform: uppercase;}
+  .vbtn{border:2px solid var(--line);background:var(--card);padding:6px 14px;border-radius:10px;font:inherit;font-weight:700;font-size:15px;cursor:pointer; text-transform: uppercase; letter-spacing: .05em;}
+  .vbtn[aria-pressed="true"]{background:#2a2118;color:#fff;border-color:#2a2118}
+
+  .panel{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:16px}
+  @media(max-width:760px){.panel{grid-template-columns:1fr}}
+  .box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px; position: relative; min-height: 260px;}
+  
+  /* Место для картинки lui1.png в углу */
+  .lui { position: absolute; right: 16px; bottom: 16px; width: 200px; height: 200px; object-fit: contain; z-index: 5; opacity: 0.9; pointer-events: none; }
+  @media(max-width:760px){ .lui { width: 80px; height: 80px; right: 10px; bottom: 10px; } }
+
+  .box h2{margin:0 0 10px;font-size:15px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted); font-weight: 700;}
+
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px; max-width: 80%;}
+  @media(max-width:760px){ .cards { max-width: 100%; } }
+
+  .card{
+    border:2px solid var(--line);border-radius:14px;background:#fff;padding:8px;cursor:pointer;
+    display:flex;flex-direction:column;align-items:center;gap:6px;font:inherit;color:inherit;
+    transition:transform .15s,border-color .15s,box-shadow .15s;
+  }
+  .card:hover{transform:translateY(-2px)}
+  .card[aria-pressed="true"]{border-color:var(--ink);box-shadow:0 4px 12px rgba(0,0,0,.18);transform:translateY(-2px)}
+  .sw{width:100%;height:46px;border-radius:9px;box-shadow:inset 0 0 0 1px rgba(0,0,0,.12)}
+  .card span{font-size:14px;font-weight:700;text-align:center;line-height:1.15; text-transform: uppercase;}
+
+  .verdict{display:inline-block;padding:5px 12px;border-radius:999px;font-weight:700;font-size:14px;margin-bottom:8px;color:#fff;transition:background-color .4s; text-transform: uppercase; letter-spacing: .05em;}
+  .vname{font-size:22px;font-weight:700;margin:0 0 6px; text-transform: uppercase;}
+  .note{margin:0 0 14px;line-height:1.5;font-size:16px; font-weight: 400;}
+  .meter-l{display:flex;justify-content:space-between;font-size:14px;color:var(--muted);margin:10px 0 4px;font-weight:700; text-transform: uppercase;}
+  .meter{height:12px;border-radius:99px;background:linear-gradient(90deg,#3fae5a,#e8c23a 50%,#e0432f);position:relative}
+  .meter b{position:absolute;top:-4px;width:6px;height:20px;border-radius:3px;background:#2a2118;border:2px solid #fff;transform:translateX(-50%);transition:left .6s ease;box-shadow:0 1px 4px rgba(0,0,0,.4)}
+  .heat{display:none}.heat.on{display:block}
+  .meter.heatbar{background:linear-gradient(90deg,#4aa3e8,#e8c23a 55%,#e0432f)}
+  .fact{margin-top:14px;padding:12px 14px;border-radius:12px;background:#f6f1e7;font-size:15px;line-height:1.5; font-weight: 400;}
+  .fact b{color:#8a5a12; font-weight: 700;}
+  footer{margin-top:18px;color:var(--muted);font-size:14px; font-weight: 400;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Какой цвет спасёт животное?</h1>
+  <p class="sub">Выбирай животное и меняй цвет его шерсти – смотри, когда его не видно хищнику.</p>
+
+  <div class="tabs" id="tabs" role="tablist"></div>
+
+  <div class="stage-wrap">
+    <div class="stage" id="stage"></div>
+    <div class="overlay-q"><div class="dot" id="qdot"></div><div class="q" id="q"></div></div>
+  </div>
+
+  <div class="variants" id="variants"><span class="lab" id="vlab"></span></div>
+
+  <div class="panel">
+    <div class="box">
+      <h2>Нажимай на цвет</h2>
+      <div class="cards" id="cards"></div>
+      <!-- МЕСТО ДЛЯ КАРТИНКИ LUI1 -->
+      <img class="lui" src="lui1.png" alt="Lui1" onerror="this.style.display='none'">
+    </div>
+    <div class="box">
+      <h2>Что получилось</h2>
+      <span class="verdict" id="verdict"></span>
+      <p class="vname" id="vname"></p>
+      <p class="note" id="note"></p>
+      <div class="meter-l"><span>Заметность для хищника</span><span id="vis-n"></span></div>
+      <div class="meter"><b id="vis"></b></div>
+      <div class="heat" id="heatbox">
+        <div class="meter-l"><span>Нагрев на солнце</span><span id="heat-n"></span></div>
+        <div class="meter heatbar"><b id="heat"></b></div>
+      </div>
+      <div class="fact" id="fact"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- цвет ---------- */
+function hex2rgb(h){h=h.replace('#','');return [0,2,4].map(i=>parseInt(h.substr(i,2),16))}
+function rgb2lab(rgb){
+  let [r,g,b]=rgb.map(v=>{v/=255;return v>.04045?Math.pow((v+.055)/1.055,2.4):v/12.92});
+  let x=(r*.4124+g*.3576+b*.1805)/.95047, y=(r*.2126+g*.7152+b*.0722), z=(r*.0193+g*.1192+b*.9505)/1.08883;
+  const f=t=>t>.008856?Math.cbrt(t):7.787*t+16/116;
+  x=f(x);y=f(y);z=f(z);
+  return [116*y-16,500*(x-y),200*(y-z)];
+}
+const lab=h=>rgb2lab(hex2rgb(h));
+function dE(a,b){const A=lab(a),B=lab(b);return Math.hypot(A[0]-B[0],A[1]-B[1],A[2]-B[2])}
+
+/* ---------- рандом с зерном, чтобы сцены не прыгали ---------- */
+function rng(seed){return()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296}}
+
+/* ---------- данные ---------- */
+const ANIMALS=[
+ {id:'camel',tab:'Верблюд',q:'Какой цвет «подходит» верблюду больше?',kind:'img',img:['camel.png'],bg:['#eccb90'],heat:true,
+  fact:'<b>Приспособление:</b> светлая песочная шерсть отражает солнечные лучи, а густая шерсть на спине работает как «теплоизоляция» от жара. Тёмная окраска в пустыне привела бы к перегреву.',
+  colors:[
+   {n:'Песочный',h:'#eccb90',t:'Сливается с барханами и отражает солнце – идеальный цвет для жизни в пустыне.'},
+   {n:'Белый',h:'#f7f3ea',t:'Тоже светлый и отражает жар, но на золотистом песке уже чуть заметнее.'},
+   {n:'Синий',h:'#00b0f0',t:'Такого цвета в пустыне нет – верблюда видно за километры.'},
+   {n:'Фиолетовый',h:'#7030a0',t:'Контрастное пятно на песке и ещё и сильно нагревается.'},
+   {n:'Тёмно-красный',h:'#c00000',t:'Тёмный цвет поглощает тепло, а яркость выдаёт животное.'},
+   {n:'Красный',h:'#ff0000',t:'Самый заметный вариант – идеальная мишень.'},
+   {n:'Чёрный',h:'#1e1b18',t:'Поглощает солнечное тепло как батарейка – в +45 °C это опасно.'}]},
+ {id:'hare',tab:'Заяц-беляк',q:'Какой цвет «подходит» зайцу-беляку больше?',kind:'img',img:['rabbit1.png','rabbit2.png'],
+  variants:['Зима','Лето'],vlab:'Время года:',bg:['#e8eef4','#80884a'],
+  fact:'<b>Приспособление:</b> заяц-беляк линяет два раза в год: зимой становится белым, летом – серо-бурым. Меняется сезон – меняется шубка.',
+  colors:[
+   {n:'Белый',h:'#f4f7fa',t:['Зимой на снегу почти не отличить от сугроба.','Летом на траве белый заяц виден как снежок.']},
+   {n:'Серо-бурый',h:'#8b7b5e',t:['На белом снегу тёмное пятно видно издалека.','Летом сливается с травой и землёй.']},
+   {n:'Серый',h:'#a6a8ac',t:['Серое лучше тёмного, но на снегу всё равно заметно.','На траве выделяется светлым пятном.']},
+   {n:'Чёрный',h:'#1c1a19',t:['Чёрный на снегу – как мишень на бумаге.','Тёмный, но трава светлее – всё равно заметен.']},
+   {n:'Рыжий',h:'#c46a2b',t:['Яркое пятно на снегу.','Чуть теплее травы, но заметен.']},
+   {n:'Красный',h:'#e02020',t:['Виден отовсюду.','Виден отовсюду.']}]},
+ {id:'frog',tab:'Лягушка',q:'Какой цвет «подходит» лягушке больше?',kind:'img',img:['frog.png'],bg:['#5a9a3c'],
+  fact:'<b>Приспособление:</b> у большинства лягушек – защитная окраска под листья и кору. А у ядовитых (древолазов) – наоборот, яркая «предупреждающая»: хищник запомнит и больше не тронет.',
+  colors:[
+   {n:'Зелёный',h:'#5c9c3e',t:'Сливается с листвой. Так выглядят самые «обычные» древесные лягушки.'},
+   {n:'Оливковый',h:'#7a7a3a',t:'Тоже неплохо – похоже на засохший лист.'},
+   {n:'Бурый',h:'#6e4a2c',t:'На коре или земле был бы незаметен, а на зелёном листе – тёмное пятно.'},
+   {n:'Красный',h:'#d62828',t:'Заметен! Но у ядовитых лягушек красный – это знак «я опасна». Безобидной он только навредит.',warn:true},
+   {n:'Голубой',h:'#2b7fff',t:'Ярко-голубой бывает у ядовитых древолазов – предупреждение хищникам.',warn:true},
+   {n:'Жёлтый',h:'#f2c81a',t:'Яркий сигнал «не ешь» – у настоящих древолазов он означает яд.',warn:true},
+   {n:'Белый',h:'#f5f5f0',t:'Белая лягушка на зелёном листе – видна сразу.'}]}
+];
+
+/* ---------- состояние / DOM ---------- */
+const $=id=>document.getElementById(id);
+let A=0,C=0,V=0;
+
+function verdictFor(c,d){
+  if(c.warn) return {t:'⚠ Предупреждение',col:'#c2410c'};
+  if(d<14) return {t:'✓ Почти невидим',col:'#2f9e55'};
+  if(d<30) return {t:'~ Так себе',col:'#b98a12'};
+  return {t:'✗ Виден издалека',col:'#d0392b'};
+}
+function lum(h){const [r,g,b]=hex2rgb(h);return(0.2126*r+0.7152*g+0.0722*b)/255}
+
+function buildStage(){
+  const a=ANIMALS[A],src=a.img[Math.min(V,a.img.length-1)];
+  $('stage').innerHTML=`<div class="hole" id="tint" style="inset:0"></div><img src="${src}" alt="${a.tab}">`;
+}
+function paint(hex){
+  const t=$('tint'); t.style.backgroundColor=hex;
+  t.style.backgroundImage='linear-gradient(180deg,rgba(255,255,255,.14),rgba(0,0,0,.2))';
+  $('qdot').style.backgroundColor=hex;
+}
+function update(){
+  const a=ANIMALS[A],c=a.colors[C];
+  const bg=a.bg[Math.min(V,a.bg.length-1)];
+  const d=dE(c.h,bg);
+  paint(c.h);
+  const v=verdictFor(c,d);
+  $('verdict').textContent=v.t; $('verdict').style.backgroundColor=v.col;
+  $('vname').textContent=c.n;
+  $('note').textContent=Array.isArray(c.t)?c.t[V]:c.t;
+  $('vis').style.left=Math.max(3,Math.min(97,d/55*100))+'%';
+  $('vis-n').textContent=d<14?'низкая':d<30?'средняя':'высокая';
+  $('heatbox').classList.toggle('on',!!a.heat);
+  if(a.heat){const h=1-lum(c.h);$('heat').style.left=Math.max(3,Math.min(97,h*100))+'%';$('heat-n').textContent=h<.35?'прохладно':h<.6?'тепло':'жарко';}
+  $('fact').innerHTML=a.fact;
+  document.querySelectorAll('.card').forEach((el,i)=>el.setAttribute('aria-pressed',i===C));
+}
+function buildCards(){
+  const a=ANIMALS[A];
+  $('cards').innerHTML=a.colors.map((c,i)=>`<button class="card" data-i="${i}"><div class="sw" style="background:${c.h}"></div><span>${c.n}</span></button>`).join('');
+  $('cards').querySelectorAll('.card').forEach(b=>b.onclick=()=>{C=+b.dataset.i;update()});
+}
+function buildVariants(){
+  const a=ANIMALS[A],box=$('variants');
+  box.classList.toggle('on',!!a.variants);
+  box.querySelectorAll('.vbtn').forEach(e=>e.remove());
+  if(!a.variants)return;
+  $('vlab').textContent=a.vlab;
+  a.variants.forEach((n,i)=>{const b=document.createElement('button');b.className='vbtn';b.textContent=n;b.setAttribute('aria-pressed',i===V);
+    b.onclick=()=>{V=i;box.querySelectorAll('.vbtn').forEach((x,j)=>x.setAttribute('aria-pressed',j===i));buildStage();update()};box.appendChild(b)});
+}
+function selectAnimal(i){
+  A=i;C=0;V=0;
+  $('q').textContent=ANIMALS[A].q;
+  document.querySelectorAll('.tab').forEach((t,j)=>t.setAttribute('aria-selected',j===i));
+  buildStage();buildCards();buildVariants();update();
+}
+$('tabs').innerHTML=ANIMALS.map((a,i)=>`<button class="tab" role="tab" data-i="${i}">${a.tab}</button>`).join('');
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>selectAnimal(+t.dataset.i));
+addEventListener('keydown',e=>{const n=ANIMALS[A].colors.length;
+  if(e.key==='ArrowRight'){C=(C+1)%n;update()} if(e.key==='ArrowLeft'){C=(C-1+n)%n;update()}});
+selectAnimal(0);
+</script>
+</body>
+</html>
